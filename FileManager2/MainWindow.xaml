@@ -1,0 +1,35 @@
+﻿<Window x:Class="FileManager2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FileManager2"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="4*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="14*"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <TextBox x:Name="FORM_IP" Text="IP" Margin="5" HorizontalContentAlignment="Center"/>
+            <TextBox x:Name="FORM_PORT" Text="PORT" Margin="5" HorizontalContentAlignment="Center"/>
+            <Button Margin="5">Connect</Button>
+        </StackPanel>
+        <Border x:Name="FORM_INDICATOR" Grid.Row="1" Margin="8,3,8,3">
+            <Border.Background>
+                <LinearGradientBrush>
+                    <GradientStop Color="Red"/>
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
+        <WrapPanel Grid.Column="1" Grid.Row="1">
+            <Button Width="100" Margin="3">Download</Button>
+            <Button Width="100" Margin="3">Upload</Button>
+        </WrapPanel>
+    </Grid>
+</Window>
