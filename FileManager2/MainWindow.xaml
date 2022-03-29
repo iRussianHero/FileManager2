@@ -30,6 +30,7 @@
         <WrapPanel Grid.Column="1" Grid.Row="1">
             <Button Width="100" Margin="3">Download</Button>
             <Button Width="100" Margin="3">Upload</Button>
+            <Button Width="100" Margin="3">Play</Button>
         </WrapPanel>
     </Grid>
 </Window>
