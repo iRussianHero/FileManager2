@@ -18,7 +18,7 @@
         <StackPanel>
             <TextBox x:Name="FORM_IP" Text="IP" Margin="5" HorizontalContentAlignment="Center"/>
             <TextBox x:Name="FORM_PORT" Text="PORT" Margin="5" HorizontalContentAlignment="Center"/>
-            <Button Margin="5">Connect</Button>
+            <Button Click="FORM_CLICK_BUTTON_CONNECTION" Margin="5">Connect</Button>
         </StackPanel>
         <Border x:Name="FORM_INDICATOR" Grid.Row="1" Margin="8,3,8,3">
             <Border.Background>
@@ -32,5 +32,6 @@
             <Button Width="100" Margin="3">Upload</Button>
             <Button Width="100" Margin="3">Play</Button>
         </WrapPanel>
+        <Label x:Name="FileLenght" Grid.Column="1" Content="Label" HorizontalAlignment="Left" Margin="110,99,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>
