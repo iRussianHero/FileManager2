@@ -20,7 +20,8 @@ namespace TcpServer
 
         static void ClientListener(object _newClient)
         {
-            int lenght = 0;
+            int packetLenght = 0;
+            int fileLenght = 0;
 
             using (FileStream writer = File.Create("C:\\Users\\vyshk\\Desktop\\delete\\slackCopy.exe", 4096, FileOptions.Asynchronous))
             {
@@ -28,22 +29,23 @@ namespace TcpServer
                 {
                     try
                     {
-                        networkStream = ((TcpClient)_newClient).GetStream(); 
-                        byte[] buffer = new byte[60000];
-                        lenght = networkStream.Read(buffer, 0, 60000);
-                        Console.WriteLine(lenght);
+                        networkStream = ((TcpClient)_newClient).GetStream();
+                        byte[] buffer = new byte[4096];
+                        packetLenght = networkStream.Read(buffer, 0, 4096);
+                        //Console.WriteLine(lenght);
                         writer.Write(buffer);
-                        if (lenght == '\0')
+                        fileLenght += packetLenght;
+                        if (packetLenght == '\0')
                         {
-                            Console.WriteLine("lenght = " + lenght);
-                            if (lenght == '\0')
+                            Console.WriteLine($"Файл получен, размер файла = {fileLenght}");
+                            if (packetLenght == '\0')
                                 break;
                         }
                     }
                     catch
                     {
                         networkStream.Close();
-                        Console.WriteLine(lenght);
+                        Console.WriteLine(fileLenght);
                         break;
                     }
                     networkStream.Flush();
