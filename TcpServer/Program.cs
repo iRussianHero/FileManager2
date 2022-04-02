@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 
 namespace TcpServer
@@ -22,8 +23,23 @@ namespace TcpServer
         {
             int packetLenght = 0;
             int fileLenght = 0;
+            string fileName = string.Empty;
 
-            using (FileStream writer = File.Create("C:\\Users\\vyshk\\Desktop\\delete\\slackCopy.exe", 4096, FileOptions.Asynchronous))
+            //////////////////////////////////////////////////////////////////////////
+            ///Получаем имя файла
+            networkStream = ((TcpClient)_newClient).GetStream();
+            byte[] fileNameBuffer = new byte[4096];
+            packetLenght = networkStream.Read(fileNameBuffer, 0, 4096);
+
+            if (Encoding.Default.GetString(fileNameBuffer).Contains("<Name>"))
+            {
+                fileName = Encoding.Default.GetString(fileNameBuffer);
+                fileName = fileName.Remove(fileName.IndexOf('\0'));
+                fileName = fileName.Remove(0, fileName.IndexOf('>') + 1);
+            }
+            //////////////////////////////////////////////////////////////////////////
+
+            using (FileStream writer = File.Create($"C:\\Users\\vyshk\\Desktop\\delete\\{fileName}", 4096, FileOptions.Asynchronous))
             {
                 while (true)
                 {
@@ -32,15 +48,20 @@ namespace TcpServer
                         networkStream = ((TcpClient)_newClient).GetStream();
                         byte[] buffer = new byte[4096];
                         packetLenght = networkStream.Read(buffer, 0, 4096);
-                        //Console.WriteLine(lenght);
-                        writer.Write(buffer);
-                        fileLenght += packetLenght;
+
+                        if (Encoding.Default.GetString(buffer).Contains("<Name>"))
+                        {
+                            fileName = Encoding.Default.GetString(buffer);
+                        }
+
                         if (packetLenght == '\0')
                         {
-                            Console.WriteLine($"Файл получен, размер файла = {fileLenght}");
+                            Console.WriteLine($"Файл \"{fileName}\" , размер = {fileLenght}");
                             if (packetLenght == '\0')
                                 break;
                         }
+                        writer.Write(buffer);
+                        fileLenght += packetLenght;
                     }
                     catch
                     {

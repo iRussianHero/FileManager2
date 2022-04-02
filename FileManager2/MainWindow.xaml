@@ -25,10 +25,11 @@
         </StackPanel>
         <Rectangle x:Name="FORM_INDICATOR" Grid.Row="1" Margin="8,3,8,3" Fill="Red"></Rectangle>
         <WrapPanel Grid.Column="1" Grid.Row="1">
+            <Button Click="FORM_CLICK_BUTTON_BROWSE" Width="100" Margin="3">Browse</Button>
             <Button Width="100" Margin="3">Download</Button>
             <Button Click="FORM_CLICK_BUTTON_UPLOAD" Width="100" Margin="3">Upload</Button>
             <Button Width="100" Margin="3">Play</Button>
         </WrapPanel>
-        <Label x:Name="FileLenght" Grid.Column="1" Content="Label" HorizontalAlignment="Left" Margin="110,99,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="FORM_LABLE_LENGHT_FILE" Grid.Column="1" Content="Label" HorizontalAlignment="Left" Margin="110,99,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Net.Sockets;
@@ -15,6 +16,10 @@ namespace FileManager2
         NetworkStream stream;
         string ip = "127.0.0.1";
         int port = 8888;
+        OpenFileDialog openFile;
+        string path;
+        int fileLenght;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -44,19 +49,33 @@ namespace FileManager2
             FORM_INDICATOR.Fill = mySolidColorBrush;
         }
         private void FORM_CLICK_BUTTON_UPLOAD(object sender, RoutedEventArgs e)
-        {     
-            string path = "C:\\Users\\vyshk\\Desktop\\delete\\slack.exe";
+        {
+            int i = path.LastIndexOf('\\');
+            string name = "<Name>" + path.Remove(0, i + 1);
+            byte[] fileName = Encoding.Default.GetBytes(name);
+            stream.Write(fileName, 0, fileName.Length);
+
+
             byte[] buffer = File.ReadAllBytes(path);
-            FileLenght.Content = buffer.Length; // вывод размера в байтах в окно приложения
+            FORM_LABLE_LENGHT_FILE.Content = buffer.Length; // вывод размера в байтах в окно приложения
             stream.Write(buffer, 0, buffer.Length);
         }
         private void FORM_CLICK_BUTTON_DISCONNECTION(object sender, RoutedEventArgs e)
         {
+            FORM_LABLE_LENGHT_FILE.Content = 0;
             stream.Close();
             connectionToServer.Close();
             SolidColorBrush mySolidColorBrush = new SolidColorBrush();
             mySolidColorBrush.Color = System.Windows.Media.Color.FromArgb(255, 255, 0, 0);
             FORM_INDICATOR.Fill = mySolidColorBrush;
+        }
+
+        private void FORM_CLICK_BUTTON_BROWSE(object sender, RoutedEventArgs e)
+        {
+            openFile = new OpenFileDialog();
+            openFile.ShowDialog();
+            path = openFile.FileName;
+            fileLenght = path.Length;
         }
     }
 }
@@ -73,7 +92,7 @@ namespace FileManager2
 //    stream.Write(buffer, 0, buffer.Length);
 //    stream.Flush();
 //}
-   
+
 //public void Sender()
 //{
 //    string path = "C:\\Users\\vyshk\\Desktop\\delete\\slack.exe";
