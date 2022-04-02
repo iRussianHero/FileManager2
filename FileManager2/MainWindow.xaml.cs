@@ -1,8 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.Drawing;
+using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace FileManager2
 {
@@ -15,8 +19,7 @@ namespace FileManager2
         public MainWindow()
         {
             InitializeComponent();
-            connectionToServer = new TcpClient(ip, port);
-            stream = connectionToServer.GetStream();
+
 
             //Thread thread = new Thread(new ParameterizedThreadStart(Listener));
             //thread.Start(connectionToServer);
@@ -34,9 +37,28 @@ namespace FileManager2
         //        MessageBox.Show(message);
         //    }
         //}
-        public void Sender() // тоже самое что и Sender2()
+
+        private void FORM_CLICK_BUTTON_CONNECTION(object sender, RoutedEventArgs e)
         {
-            string path = "C:\\Users\\vyshk\\Desktop\\delete\\slack.exe";
+            ip = FORM_IP.Text;
+            port = Convert.ToInt32(FORM_PORT.Text);
+
+            connectionToServer = new TcpClient(ip, port);
+            stream = connectionToServer.GetStream();
+
+            SolidColorBrush mySolidColorBrush = new SolidColorBrush();
+            mySolidColorBrush.Color = System.Windows.Media.Color.FromArgb(255, 0, 255, 0);
+
+            FORM_INDICATOR.Fill = mySolidColorBrush;
+        }
+
+        private void FORM_CLICK_BUTTON_UPLOAD(object sender, RoutedEventArgs e)
+        {
+
+            stream.Write(buffer, 0, buffer.Length);
+
+
+            string path = "C:\\Users\\boxbo\\Desktop\\111\\SQL.jpg";
             byte[] buffer = File.ReadAllBytes(path);
 
             FileLenght.Content = buffer.Length; // вывод размера в байтах в окно приложения
@@ -44,10 +66,15 @@ namespace FileManager2
             stream.Write(buffer, 0, buffer.Length);
         }
 
-
-        private void FORM_CLICK_BUTTON_CONNECTION(object sender, RoutedEventArgs e)
+        private void FORM_CLICK_BUTTON_DISCONNECTION(object sender, RoutedEventArgs e)
         {
-            Sender();
+            stream.Close();
+            connectionToServer.Close();
+
+            SolidColorBrush mySolidColorBrush = new SolidColorBrush();
+            mySolidColorBrush.Color = System.Windows.Media.Color.FromArgb(255, 255, 0, 0);
+
+            FORM_INDICATOR.Fill = mySolidColorBrush;
         }
     }
 }
