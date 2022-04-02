@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 
 namespace TcpServer
@@ -30,11 +28,17 @@ namespace TcpServer
                 {
                     try
                     {
-                        networkStream = ((TcpClient)_newClient).GetStream();
-                        byte[] buffer = new byte[4096];
-                        networkStream.Read(buffer, 0, 4096);
-                        lenght += buffer.Length;
+                        networkStream = ((TcpClient)_newClient).GetStream(); 
+                        byte[] buffer = new byte[60000];
+                        lenght = networkStream.Read(buffer, 0, 60000);
+                        Console.WriteLine(lenght);
                         writer.Write(buffer);
+                        if (lenght == '\0')
+                        {
+                            Console.WriteLine("lenght = " + lenght);
+                            if (lenght == '\0')
+                                break;
+                        }
                     }
                     catch
                     {
