@@ -57,7 +57,7 @@ namespace FileManager2
 
             stream.Write(buffer, 0, buffer.Length);
 
-
+            //Comit
             string path = "C:\\Users\\boxbo\\Desktop\\111\\SQL.jpg";
             byte[] buffer = File.ReadAllBytes(path);
 
