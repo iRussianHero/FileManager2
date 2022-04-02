@@ -1,13 +1,10 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Drawing;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Shapes;
 namespace FileManager2
 {
     public partial class MainWindow : Window
@@ -26,6 +23,7 @@ namespace FileManager2
             //Thread thread = new Thread(new ParameterizedThreadStart(Listener));
             //thread.Start(connectionToServer);
         }
+
         //private void Listener(object client)
         //{
         //    connectionToServer = client as TcpClient;
@@ -38,27 +36,17 @@ namespace FileManager2
         //        MessageBox.Show(message);
         //    }
         //}
+
         private void FORM_CLICK_BUTTON_CONNECTION(object sender, RoutedEventArgs e)
         {
             ip = FORM_IP.Text;
             port = Convert.ToInt32(FORM_PORT.Text);
             connectionToServer = new TcpClient(ip, port);
             stream = connectionToServer.GetStream();
+
             SolidColorBrush mySolidColorBrush = new SolidColorBrush();
             mySolidColorBrush.Color = System.Windows.Media.Color.FromArgb(255, 0, 255, 0);
             FORM_INDICATOR.Fill = mySolidColorBrush;
-        }
-        private void FORM_CLICK_BUTTON_UPLOAD(object sender, RoutedEventArgs e)
-        {
-            int i = path.LastIndexOf('\\');
-            string name = "<Name>" + path.Remove(0, i + 1);
-            byte[] fileName = Encoding.Default.GetBytes(name);
-            stream.Write(fileName, 0, fileName.Length);
-
-
-            byte[] buffer = File.ReadAllBytes(path);
-            FORM_LABLE_LENGHT_FILE.Content = buffer.Length; // вывод размера в байтах в окно приложения
-            stream.Write(buffer, 0, buffer.Length);
         }
         private void FORM_CLICK_BUTTON_DISCONNECTION(object sender, RoutedEventArgs e)
         {
@@ -69,7 +57,23 @@ namespace FileManager2
             mySolidColorBrush.Color = System.Windows.Media.Color.FromArgb(255, 255, 0, 0);
             FORM_INDICATOR.Fill = mySolidColorBrush;
         }
+        private void FORM_CLICK_BUTTON_UPLOAD(object sender, RoutedEventArgs e)
+        {
 
+            // Передача Имени файла
+            int i = path.LastIndexOf('\\');
+            string name = $"<Name={path.Remove(0, i + 1)}>";
+            byte[] fileName = Encoding.Default.GetBytes(name);
+            stream.Write(fileName, 0, fileName.Length);
+
+            // Передача файла
+            byte[] buffer = File.ReadAllBytes(path);
+            FORM_LABLE_LENGHT_FILE.Content = buffer.Length; // вывод размера в байтах в окно приложения
+            stream.Write(buffer, 0, buffer.Length);
+
+            FORM_CLICK_BUTTON_DISCONNECTION(sender, e);
+            FORM_CLICK_BUTTON_CONNECTION(sender, e);
+        }
         private void FORM_CLICK_BUTTON_BROWSE(object sender, RoutedEventArgs e)
         {
             openFile = new OpenFileDialog();

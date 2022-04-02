@@ -25,52 +25,57 @@ namespace TcpServer
             int fileLenght = 0;
             string fileName = string.Empty;
 
-            //////////////////////////////////////////////////////////////////////////
-            ///Получаем имя файла
-            networkStream = ((TcpClient)_newClient).GetStream();
-            byte[] fileNameBuffer = new byte[4096];
-            packetLenght = networkStream.Read(fileNameBuffer, 0, 4096);
-
-            if (Encoding.Default.GetString(fileNameBuffer).Contains("<Name>"))
+            try
             {
-                fileName = Encoding.Default.GetString(fileNameBuffer);
-                fileName = fileName.Remove(fileName.IndexOf('\0'));
-                fileName = fileName.Remove(0, fileName.IndexOf('>') + 1);
-            }
-            //////////////////////////////////////////////////////////////////////////
+                //////////////////////////////////////////////////////////////////////////
+                ///Получаем имя файла
+                networkStream = ((TcpClient)_newClient).GetStream();
+                byte[] fileNameBuffer = new byte[4096];
+                packetLenght = networkStream.Read(fileNameBuffer, 0, 4096);
 
-            using (FileStream writer = File.Create($"C:\\Users\\vyshk\\Desktop\\delete\\{fileName}", 4096, FileOptions.Asynchronous))
-            {
-                while (true)
+                if (Encoding.Default.GetString(fileNameBuffer).Contains("<Name="))
                 {
-                    try
+                    fileName = Encoding.Default.GetString(fileNameBuffer);
+                    fileName = fileName.Remove(fileName.IndexOf('\0'));
+                    fileName = fileName.Remove(0, fileName.IndexOf('=') + 1);
+                    fileName = fileName.Remove(fileName.IndexOf('>'));
+                    Console.WriteLine(fileName);
+                }
+                //////////////////////////////////////////////////////////////////////////
+
+                if (fileName == string.Empty)
+                {
+                    Console.WriteLine("Посетитель вышел или не отправили имя файла");
+                    return;
+                }
+                //////////////////////////////////////////////////////////////////////////
+                ///Сохранение файла
+                using (FileStream fileWriter = File.Create($"C:\\Users\\vyshk\\Desktop\\delete\\{fileName}", 4096, FileOptions.Asynchronous))
+                {
+                    while (true)
                     {
+
                         networkStream = ((TcpClient)_newClient).GetStream();
-                        byte[] buffer = new byte[4096];
-                        packetLenght = networkStream.Read(buffer, 0, 4096);
+                        byte[] fileDataBuffer = new byte[60000];
+                        packetLenght = networkStream.Read(fileDataBuffer, 0, 60000);
 
-                        if (Encoding.Default.GetString(buffer).Contains("<Name>"))
+                        if (packetLenght == '\0')// если клиент дисконектится то ретерним
                         {
-                            fileName = Encoding.Default.GetString(buffer);
+                            Console.WriteLine($"Файл \"{fileName}\" сохранен, размер = {fileLenght}");
+                            return;
                         }
 
-                        if (packetLenght == '\0')
-                        {
-                            Console.WriteLine($"Файл \"{fileName}\" , размер = {fileLenght}");
-                            if (packetLenght == '\0')
-                                break;
-                        }
-                        writer.Write(buffer);
+                        //Console.WriteLine($"Файл \"{fileName}\" , размер = {fileLenght}");
+                        fileWriter.Write(fileDataBuffer, 0, packetLenght);
                         fileLenght += packetLenght;
                     }
-                    catch
-                    {
-                        networkStream.Close();
-                        Console.WriteLine(fileLenght);
-                        break;
-                    }
-                    networkStream.Flush();
                 }
+                //////////////////////////////////////////////////////////////////////////
+            }
+            catch
+            {
+                networkStream.Close();
+                Console.WriteLine($"Exception");
             }
         }
 
