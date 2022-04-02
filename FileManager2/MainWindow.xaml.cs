@@ -36,7 +36,26 @@ namespace FileManager2
         //}
         public void Sender() // тоже самое что и Sender2()
         {
-            string path = "C:\\Users\\vyshk\\Desktop\\delete\\slack.exe";
+
+            ip = FORM_IP.Text;
+            port = Convert.ToInt32(FORM_PORT.Text);
+
+            connectionToServer = new TcpClient(ip, port);
+            stream = connectionToServer.GetStream();
+
+            SolidColorBrush mySolidColorBrush = new SolidColorBrush();
+            mySolidColorBrush.Color = System.Windows.Media.Color.FromArgb(255, 0, 255, 0);
+
+            FORM_INDICATOR.Fill = mySolidColorBrush;
+        }
+
+        private void FORM_CLICK_BUTTON_UPLOAD(object sender, RoutedEventArgs e)
+        {
+
+            stream.Write(buffer, 0, buffer.Length);
+
+            string path = "C:\\Users\\boxbo\\Desktop\\111\\SQL.jpg";
+
             byte[] buffer = File.ReadAllBytes(path);
 
             FileLenght.Content = buffer.Length; // вывод размера в байтах в окно приложения
