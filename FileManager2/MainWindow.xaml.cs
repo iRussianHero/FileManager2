@@ -20,22 +20,8 @@ namespace FileManager2
         public MainWindow()
         {
             InitializeComponent();
-            //Thread thread = new Thread(new ParameterizedThreadStart(Listener));
-            //thread.Start(connectionToServer);
         }
 
-        //private void Listener(object client)
-        //{
-        //    connectionToServer = client as TcpClient;
-        //    while (true)
-        //    {
-        //        stream = connectionToServer.GetStream();
-        //        byte[] buffer = new byte[64000];
-        //        stream.Read(buffer, 0, buffer.Length);
-        //        string message = buffer.ToString();
-        //        MessageBox.Show(message);
-        //    }
-        //}
 
         private void FORM_CLICK_BUTTON_CONNECTION(object sender, RoutedEventArgs e)
         {
@@ -59,7 +45,6 @@ namespace FileManager2
         }
         private void FORM_CLICK_BUTTON_UPLOAD(object sender, RoutedEventArgs e)
         {
-
             // Передача Имени файла
             int i = path.LastIndexOf('\\');
             string name = $"<Name={path.Remove(0, i + 1)}>";
@@ -70,9 +55,6 @@ namespace FileManager2
             byte[] buffer = File.ReadAllBytes(path);
             FORM_LABLE_LENGHT_FILE.Content = buffer.Length; // вывод размера в байтах в окно приложения
             stream.Write(buffer, 0, buffer.Length);
-
-            FORM_CLICK_BUTTON_DISCONNECTION(sender, e);
-            FORM_CLICK_BUTTON_CONNECTION(sender, e);
         }
         private void FORM_CLICK_BUTTON_BROWSE(object sender, RoutedEventArgs e)
         {
@@ -83,32 +65,5 @@ namespace FileManager2
         }
     }
 }
-//public void Sender()
-//{
-//    string path = "C:\\Users\\vyshk\\Desktop\\delete\\slack.exe";
-//    byte[] buffer;
-//    using (FileStream fileStream = File.OpenRead(path))
-//    {
-//        buffer = new byte[fileStream.Length];
-//        fileStream.Read(buffer, 0, buffer.Length);
-//    }
-//    FileLenght.Content = buffer.Length; // вывод размера в байтах в окно приложения
-//    stream.Write(buffer, 0, buffer.Length);
-//    stream.Flush();
-//}
-
-//public void Sender()
-//{
-//    string path = "C:\\Users\\vyshk\\Desktop\\delete\\slack.exe";
-//    byte[] buffer;
-//    using (FileStream fileStream = File.OpenRead(path))
-//    {
-//        buffer = new byte[fileStream.Length];
-//        fileStream.Read(buffer, 0, buffer.Length);
-//    }
-//    FileLenght.Content = buffer.Length; // вывод размера в байтах в окно приложения
-//    stream.Write(buffer, 0, buffer.Length);
-//    stream.Flush();
-//}
 
 

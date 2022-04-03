@@ -11,6 +11,8 @@ namespace TcpServer
     {
         static TcpListener listener;
         static NetworkStream networkStream;
+        static string fileName;
+        static string path = "C:\\Users\\vyshk\\Desktop\\delete\\";
 
         static void Main(string[] args)
         {
@@ -20,67 +22,82 @@ namespace TcpServer
         static void ClientListener(object _newClient)
         {
             TcpClient newClient = ((TcpClient)_newClient);
-            PostFile(newClient);
-        }
-
-        static public void PostFile(TcpClient newClient)
-        {
-            int packetLenght = 0;
-            int fileLenght = 0;
-            string fileName = string.Empty;
-
             try
             {
-                //////////////////////////////////////////////////////////////////////////
-                ///Получаем имя файла
-                networkStream = newClient.GetStream();
-                byte[] fileNameBuffer = new byte[4096];
-                packetLenght = networkStream.Read(fileNameBuffer, 0, 4096);
-
-                if (Encoding.Default.GetString(fileNameBuffer).Contains("<Name="))
+                while (true)
                 {
-                    fileName = Encoding.Default.GetString(fileNameBuffer);
-                    fileName = fileName.Remove(fileName.IndexOf('\0'));
-                    fileName = fileName.Remove(0, fileName.IndexOf('=') + 1);
-                    fileName = fileName.Remove(fileName.IndexOf('>'));
-                    Console.WriteLine(fileName);
+                    SetFileName(newClient);
+                    PostFile(newClient);
                 }
-                //////////////////////////////////////////////////////////////////////////
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString() + "\nCоединение прервано");
+            }
+        }
 
-                if (fileName == string.Empty)
+        static public void SetFileName(TcpClient newClient)
+        {
+            fileName = string.Empty;
+            //////////////////////////////////////////////////////////////////////////
+            ///Получаем имя файла
+            networkStream = newClient.GetStream();
+            byte[] fileNameBuffer = new byte[4096];
+            networkStream.Read(fileNameBuffer, 0, 4096);
+
+            if (Encoding.Default.GetString(fileNameBuffer).Contains("<Name="))
+            {
+                //NetworkToHostOrder
+                fileName = Encoding.Default.GetString(fileNameBuffer);
+                fileName = fileName.Remove(fileName.IndexOf('\0'));
+                fileName = fileName.Remove(0, fileName.IndexOf('=') + 1);
+                fileName = fileName.Remove(fileName.IndexOf('>'));
+                Console.WriteLine(fileName);
+            }
+            
+            if (fileName == string.Empty)
+            {
+                throw new Exception("Посетитель вышел или не отправили имя файла");
+            }
+            //////////////////////////////////////////////////////////////////////////
+        }
+        static public void PostFile(TcpClient newClient)
+        {
+            if (fileName == string.Empty) return;
+            int packetLenght = 0;
+            int fileLenght = 0;
+
+            //////////////////////////////////////////////////////////////////////////
+            ///Сохранение файла
+            using (FileStream fileWriter = File.Create($"{path}{fileName}", 4096, FileOptions.Asynchronous))
+            {
+                while (true)
                 {
-                    Console.WriteLine("Посетитель вышел или не отправили имя файла");
-                    return;
-                }
-                //////////////////////////////////////////////////////////////////////////
-                ///Сохранение файла
-                using (FileStream fileWriter = File.Create($"C:\\Users\\vyshk\\Desktop\\delete\\{fileName}", 4096, FileOptions.Asynchronous))
-                {
-                    while (true)
+
+                    networkStream = newClient.GetStream();
+                    byte[] fileDataBuffer = new byte[60000];
+                    packetLenght = networkStream.Read(fileDataBuffer, 0, 60000);
+
+                    //if (packetLenght == '\0') // если клиент дисконектится то ретерним
+                    //{
+                    //    Console.WriteLine($"Файл \"{fileName}\" сохранен, размер = {fileLenght}");
+                    //    return;
+                    //}
+
+                    if (packetLenght < fileDataBuffer.Length)
                     {
-
-                        networkStream = newClient.GetStream();
-                        byte[] fileDataBuffer = new byte[60000];
-                        packetLenght = networkStream.Read(fileDataBuffer, 0, 60000);
-
-                        if (packetLenght == '\0')// если клиент дисконектится то ретерним
-                        {
-                            Console.WriteLine($"Файл \"{fileName}\" сохранен, размер = {fileLenght}");
-                            return;
-                        }
-
-                        //Console.WriteLine($"Файл \"{fileName}\" , размер = {fileLenght}");
+                        fileWriter.Write(fileDataBuffer, 0, packetLenght);
+                        fileLenght += packetLenght;
+                        return;
+                    }
+                    else
+                    {
                         fileWriter.Write(fileDataBuffer, 0, packetLenght);
                         fileLenght += packetLenght;
                     }
                 }
-                //////////////////////////////////////////////////////////////////////////
             }
-            catch
-            {
-                networkStream.Close();
-                Console.WriteLine($"Exception");
-            }
+            //////////////////////////////////////////////////////////////////////////
         }
 
         static void ConnectClient()
@@ -98,3 +115,4 @@ namespace TcpServer
         }
     }
 }
+
