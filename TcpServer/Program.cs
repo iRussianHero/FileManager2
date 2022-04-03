@@ -9,17 +9,21 @@ namespace TcpServer
 {
     internal class Program
     {
-        static TcpClient client;
         static TcpListener listener;
         static NetworkStream networkStream;
 
         static void Main(string[] args)
         {
-            client = new TcpClient();
             ConnectClient();
         }
 
         static void ClientListener(object _newClient)
+        {
+            TcpClient newClient = ((TcpClient)_newClient);
+            PostFile(newClient);
+        }
+
+        static public void PostFile(TcpClient newClient)
         {
             int packetLenght = 0;
             int fileLenght = 0;
@@ -29,7 +33,7 @@ namespace TcpServer
             {
                 //////////////////////////////////////////////////////////////////////////
                 ///Получаем имя файла
-                networkStream = ((TcpClient)_newClient).GetStream();
+                networkStream = newClient.GetStream();
                 byte[] fileNameBuffer = new byte[4096];
                 packetLenght = networkStream.Read(fileNameBuffer, 0, 4096);
 
@@ -55,7 +59,7 @@ namespace TcpServer
                     while (true)
                     {
 
-                        networkStream = ((TcpClient)_newClient).GetStream();
+                        networkStream = newClient.GetStream();
                         byte[] fileDataBuffer = new byte[60000];
                         packetLenght = networkStream.Read(fileDataBuffer, 0, 60000);
 
