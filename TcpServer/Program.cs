@@ -7,27 +7,27 @@ using System.Threading;
 
 namespace TcpServer
 {
-    internal class Program
+    public class Program
     {
         static TcpListener listener;
         static NetworkStream networkStream;
+        static TcpClient client;
         static string fileName;
-        static string path = "C:\\Users\\vyshk\\Desktop\\delete\\";
+        static string path = Environment.CurrentDirectory;
 
         static void Main(string[] args)
         {
             ConnectClient();
         }
 
-        static void ClientListener(object _newClient)
-        {
-            TcpClient newClient = ((TcpClient)_newClient);
+        static void ClientListener()
+        {          
             try
             {
                 while (true)
                 {
-                    SetFileName(newClient);
-                    PostFile(newClient);
+                    SetFileName(client);
+                    PostFile(client);
                 }
             }
             catch (Exception ex)
@@ -36,7 +36,7 @@ namespace TcpServer
             }
         }
 
-        static public void SetFileName(TcpClient newClient)
+        static void SetFileName(TcpClient newClient)
         {
             fileName = string.Empty;
             //////////////////////////////////////////////////////////////////////////
@@ -54,14 +54,14 @@ namespace TcpServer
                 fileName = fileName.Remove(fileName.IndexOf('>'));
                 Console.WriteLine(fileName);
             }
-            
+
             if (fileName == string.Empty)
             {
                 throw new Exception("Посетитель вышел или не отправили имя файла");
             }
             //////////////////////////////////////////////////////////////////////////
         }
-        static public void PostFile(TcpClient newClient)
+        static void PostFile(TcpClient newClient)
         {
             if (fileName == string.Empty) return;
             int packetLenght = 0;
@@ -101,16 +101,15 @@ namespace TcpServer
         }
 
         static void ConnectClient()
-        {
-            TcpClient client;
+        {            
             listener = new TcpListener(IPAddress.Any, 8888);
             listener.Start();
             while (true)
             {
                 client = listener.AcceptTcpClient();  // работает как транзикация              
                 Console.WriteLine("У нас новый посетитель!");
-                Thread thread = new Thread(new ParameterizedThreadStart(ClientListener));
-                thread.Start(client);
+                Thread thread = new Thread(ClientListener);                
+                thread.Start();
             }
         }
     }
