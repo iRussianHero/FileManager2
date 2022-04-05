@@ -29,7 +29,6 @@
             <Button Width="100" Margin="3">Download</Button>
             <Button Click="FormClickButtonUpload" Width="100" Margin="3">Upload</Button>
             <Button Width="100" Margin="3">Play</Button>
-        </WrapPanel>
-        <Label x:Name="FormLableLenghtFile" Grid.Column="1" Content="Label" HorizontalAlignment="Left" Margin="110,99,0,0" VerticalAlignment="Top"/>
+        </WrapPanel>        
     </Grid>
 </Window>

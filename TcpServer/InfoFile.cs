@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace FileManager2
+namespace TcpServer
 {
     public class InfoFile
     {

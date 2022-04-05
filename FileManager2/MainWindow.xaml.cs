@@ -38,7 +38,6 @@ namespace FileManager2
         }
         private void FormClickButtonDisconnection(object sender, RoutedEventArgs e)
         {
-            FormLableLenghtFile.Content = 0;
             stream.Close();
             connectionToServer.Close();
             SolidColorBrush mySolidColorBrush = new SolidColorBrush();
@@ -59,16 +58,15 @@ namespace FileManager2
 
             string jsonObject = file.GetJson();
 
-            byte[] packetJson = Encoding.Default.GetBytes(jsonObject);
+            byte[] packetJson = Encoding.ASCII.GetBytes(jsonObject);
 
-            stream.Write(packetJson, 0, file.Length);            
+            stream.Write(packetJson, 0, packetJson.Length);
         }
         private void FormClickButtonBrowse(object sender, RoutedEventArgs e)
         {
             openFile = new OpenFileDialog();
             openFile.ShowDialog();
             path = openFile.FileName;
-            // fileLenght = path.Length;
         }
     }
 }
