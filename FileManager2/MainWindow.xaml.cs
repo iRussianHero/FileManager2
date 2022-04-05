@@ -11,57 +11,64 @@ namespace FileManager2
     {
         TcpClient connectionToServer;
         NetworkStream stream;
-        string ip = "127.0.0.1";
-        int port = 8888;
+        string ip;
+        int port;
         OpenFileDialog openFile;
         string path;
-        int fileLenght;
 
         public MainWindow()
         {
             InitializeComponent();
+            ip = "127.0.0.1";
+            port = 8888;
         }
 
-
-        private void FORM_CLICK_BUTTON_CONNECTION(object sender, RoutedEventArgs e)
+        //ctrl shift u
+        //ctrl u
+        private void FormClickButtonConnection(object sender, RoutedEventArgs e)
         {
-            ip = FORM_IP.Text;
-            port = Convert.ToInt32(FORM_PORT.Text);
+            ip = FormIp.Text;
+            port = Convert.ToInt32(FormPort.Text);
             connectionToServer = new TcpClient(ip, port);
             stream = connectionToServer.GetStream();
 
             SolidColorBrush mySolidColorBrush = new SolidColorBrush();
             mySolidColorBrush.Color = System.Windows.Media.Color.FromArgb(255, 0, 255, 0);
-            FORM_INDICATOR.Fill = mySolidColorBrush;
+            FormIndicator.Fill = mySolidColorBrush;
         }
-        private void FORM_CLICK_BUTTON_DISCONNECTION(object sender, RoutedEventArgs e)
+        private void FormClickButtonDisconnection(object sender, RoutedEventArgs e)
         {
-            FORM_LABLE_LENGHT_FILE.Content = 0;
+            FormLableLenghtFile.Content = 0;
             stream.Close();
             connectionToServer.Close();
             SolidColorBrush mySolidColorBrush = new SolidColorBrush();
             mySolidColorBrush.Color = System.Windows.Media.Color.FromArgb(255, 255, 0, 0);
-            FORM_INDICATOR.Fill = mySolidColorBrush;
+            FormIndicator.Fill = mySolidColorBrush;
         }
-        private void FORM_CLICK_BUTTON_UPLOAD(object sender, RoutedEventArgs e)
+        private void FormClickButtonUpload(object sender, RoutedEventArgs e)
         {
-            // Передача Имени файла
-            int i = path.LastIndexOf('\\');
-            string name = $"<Name={path.Remove(0, i + 1)}>";
-            byte[] fileName = Encoding.Default.GetBytes(name);
-            stream.Write(fileName, 0, fileName.Length);
+            if (path == null) return;
+            InfoFile file = new InfoFile();
 
-            // Передача файла
-            byte[] buffer = File.ReadAllBytes(path);
-            FORM_LABLE_LENGHT_FILE.Content = buffer.Length; // вывод размера в байтах в окно приложения
-            stream.Write(buffer, 0, buffer.Length);
+            ////// Инициализируем file
+            int index = path.LastIndexOf('\\');
+            file.Name = path.Remove(0, index + 1); // удаляет  от 0 до индекса
+            file.Data = File.ReadAllBytes(path);
+            file.Length = file.Data.Length;
+            /////////////////////////////////////////////           
+
+            string jsonObject = file.GetJson();
+
+            byte[] packetJson = Encoding.Default.GetBytes(jsonObject);
+
+            stream.Write(packetJson, 0, file.Length);            
         }
-        private void FORM_CLICK_BUTTON_BROWSE(object sender, RoutedEventArgs e)
+        private void FormClickButtonBrowse(object sender, RoutedEventArgs e)
         {
             openFile = new OpenFileDialog();
             openFile.ShowDialog();
             path = openFile.FileName;
-            fileLenght = path.Length;
+            // fileLenght = path.Length;
         }
     }
 }

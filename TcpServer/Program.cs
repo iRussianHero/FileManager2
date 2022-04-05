@@ -47,7 +47,6 @@ namespace TcpServer
 
             if (Encoding.Default.GetString(fileNameBuffer).Contains("<Name="))
             {
-                //NetworkToHostOrder
                 fileName = Encoding.Default.GetString(fileNameBuffer);
                 fileName = fileName.Remove(fileName.IndexOf('\0'));
                 fileName = fileName.Remove(0, fileName.IndexOf('=') + 1);
