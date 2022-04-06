@@ -1,69 +1,74 @@
-﻿using System.IO;
+﻿using Microsoft.Win32;
+using System;
+using System.IO;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using System.Windows;
-
+using System.Windows.Media;
 namespace FileManager2
 {
     public partial class MainWindow : Window
     {
         TcpClient connectionToServer;
         NetworkStream stream;
-        string ip = "127.0.0.1";
-        int port = 8888;
+        string ip;
+        int port;
+        OpenFileDialog openFile;
+        string path;
+
         public MainWindow()
         {
             InitializeComponent();
+            ip = "127.0.0.1";
+            port = 8888;
+        }
+
+        //ctrl shift u
+        //ctrl u
+        private void FormClickButtonConnection(object sender, RoutedEventArgs e)
+        {
+            ip = FormIp.Text;
+            port = Convert.ToInt32(FormPort.Text);
             connectionToServer = new TcpClient(ip, port);
             stream = connectionToServer.GetStream();
 
-            //Thread thread = new Thread(new ParameterizedThreadStart(Listener));
-            //thread.Start(connectionToServer);
+            SolidColorBrush mySolidColorBrush = new SolidColorBrush();
+            mySolidColorBrush.Color = System.Windows.Media.Color.FromArgb(255, 0, 255, 0);
+            FormIndicator.Fill = mySolidColorBrush;
         }
-
-        //private void Listener(object client)
-        //{
-        //    connectionToServer = client as TcpClient;
-        //    while (true)
-        //    {
-        //        stream = connectionToServer.GetStream();
-        //        byte[] buffer = new byte[64000];
-        //        stream.Read(buffer, 0, buffer.Length);
-        //        string message = buffer.ToString();
-        //        MessageBox.Show(message);
-        //    }
-        //}
-        public void Sender() // тоже самое что и Sender2()
+        private void FormClickButtonDisconnection(object sender, RoutedEventArgs e)
         {
-            string path = "C:\\Users\\vyshk\\Desktop\\delete\\slack.exe";
-            byte[] buffer = File.ReadAllBytes(path);
-
-            FileLenght.Content = buffer.Length; // вывод размера в байтах в окно приложения
-
-            stream.Write(buffer, 0, buffer.Length);
+            stream.Close();
+            connectionToServer.Close();
+            SolidColorBrush mySolidColorBrush = new SolidColorBrush();
+            mySolidColorBrush.Color = System.Windows.Media.Color.FromArgb(255, 255, 0, 0);
+            FormIndicator.Fill = mySolidColorBrush;
         }
-
-
-        private void FORM_CLICK_BUTTON_CONNECTION(object sender, RoutedEventArgs e)
+        private void FormClickButtonUpload(object sender, RoutedEventArgs e)
         {
-            Sender();
+            if (path == null) return;
+            InfoFile file = new InfoFile();
+
+            ////// Инициализируем file
+            int index = path.LastIndexOf('\\');
+            file.Name = path.Remove(0, index + 1); // удаляет  от 0 до индекса
+            file.Data = File.ReadAllBytes(path);
+            file.Length = file.Data.Length;
+            /////////////////////////////////////////////           
+
+            string jsonObject = file.GetJson();
+
+            byte[] packetJson = Encoding.ASCII.GetBytes(jsonObject);
+
+            stream.Write(packetJson, 0, packetJson.Length);
+        }
+        private void FormClickButtonBrowse(object sender, RoutedEventArgs e)
+        {
+            openFile = new OpenFileDialog();
+            openFile.ShowDialog();
+            path = openFile.FileName;
         }
     }
 }
-
-//public void Sender()
-//{
-//    string path = "C:\\Users\\vyshk\\Desktop\\delete\\slack.exe";
-//    byte[] buffer;
-//    using (FileStream fileStream = File.OpenRead(path))
-//    {
-//        buffer = new byte[fileStream.Length];
-//        fileStream.Read(buffer, 0, buffer.Length);
-//    }
-//    FileLenght.Content = buffer.Length; // вывод размера в байтах в окно приложения
-//    stream.Write(buffer, 0, buffer.Length);
-//    stream.Flush();
-//}
 
 
