@@ -31,7 +31,7 @@ namespace TcpServer
             {
                 client = listener.AcceptTcpClient();  // работает как транзикация
                                                       // Пока не подключится клиент далше шаги не выполняются
-                clients.Add(client);
+                clients.Add(client); // Добавляет нового клиента в Лист
                 Console.WriteLine("У нас новый посетитель!");
                 Thread thread = new Thread(new ParameterizedThreadStart(ClientListener));
                 thread.Start(client);
@@ -52,7 +52,7 @@ namespace TcpServer
             }
             catch (Exception ex)
             {
-                clients.Remove(client);
+                clients.Remove(client); //  Удаляем клиента если он не используется или ошибка
                 Console.WriteLine(ex.ToString() + "\nCоединение прервано");
             }
         }
