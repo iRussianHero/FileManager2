@@ -6,6 +6,19 @@
         xmlns:local="clr-namespace:FileManager2"
         mc:Ignorable="d"
         Title="MainWindow" Height="440" Width="800">
+    <Window.Resources>
+        <Style x:Key="Default">
+            <Setter Property="Control.Margin" Value="5" />
+            <Setter Property="Control.HorizontalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="ButtonDefault">
+            <Setter Property="Control.Margin" Value="5" />
+        </Style>
+        <Style x:Key="ButtonBottom">
+            <Setter Property="Control.Width" Value="100" />
+            <Setter Property="Control.Margin" Value="3" />
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -17,18 +30,18 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0">
             <Label HorizontalAlignment="Center">IP:</Label>
-            <TextBox x:Name="FormIp" Margin="5" HorizontalContentAlignment="Center" Text="127.0.0.1"/>
-            <Label HorizontalAlignment="Center">PORT:</Label>
-            <TextBox x:Name="FormPort" Margin="5" HorizontalContentAlignment="Center" Text="8888"/>
-            <Button Click="FormClickButtonConnection" Margin="5">Connect</Button>
-            <Button Click="FormClickButtonDisconnection" Margin="5">Disconnect</Button>
+            <TextBox x:Name="FormIp" Style="{StaticResource Default}" Text="127.0.0.1"/>
+            <Label Style="{StaticResource Default}">PORT:</Label>
+            <TextBox x:Name="FormPort" Style="{StaticResource Default}" Text="8888"/>
+            <Button Click="FormClickButtonConnection" Style="{StaticResource ButtonDefault}">Connect</Button>
+            <Button Click="FormClickButtonDisconnection" Style="{StaticResource ButtonDefault}">Disconnect</Button>
         </StackPanel>
         <Rectangle x:Name="FormIndicator" Grid.Row="1" Margin="8,3,8,3" Fill="Red"></Rectangle>
         <WrapPanel Grid.Column="1" Grid.Row="1">
-            <Button Click="FormClickButtonBrowse" Width="100" Margin="3">Browse</Button>
-            <Button Width="100" Margin="3">Download</Button>
-            <Button Click="FormClickButtonUpload" Width="100" Margin="3">Upload</Button>
-            <Button Width="100" Margin="3">Play</Button>
+            <Button Click="FormClickButtonBrowse" Style="{StaticResource ButtonBottom}">Browse</Button>
+            <Button Click="FormClickButtonDownLoad" Style="{StaticResource ButtonBottom}">Download</Button>
+            <Button Click="FormClickButtonUpload" Style="{StaticResource ButtonBottom}">Upload</Button>
+            <Button Style="{StaticResource ButtonBottom}">Play</Button>
         </WrapPanel>        
     </Grid>
 </Window>

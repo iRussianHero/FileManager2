@@ -5,6 +5,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
+using Microsoft.WindowsAPICodePack.Dialogs;
+
 namespace FileManager2
 {
     public partial class MainWindow : Window
@@ -58,15 +60,41 @@ namespace FileManager2
 
             string jsonObject = file.GetJson();
 
-            byte[] packetJson = Encoding.ASCII.GetBytes(jsonObject);
+            byte[] packetJson = Encoding.UTF8.GetBytes(jsonObject);
 
             stream.Write(packetJson, 0, packetJson.Length);
         }
         private void FormClickButtonBrowse(object sender, RoutedEventArgs e)
         {
-            openFile = new OpenFileDialog();
-            openFile.ShowDialog();
-            path = openFile.FileName;
+            var dialog = new CommonOpenFileDialog();
+            dialog.IsFolderPicker = false;
+            CommonFileDialogResult result = dialog.ShowDialog();
+
+            if (result != CommonFileDialogResult.Ok) return;
+            path = dialog.FileName;
+        }
+
+        private void FormClickButtonDownLoad(object sender, RoutedEventArgs e)
+        {
+            var dialog = new CommonOpenFileDialog();
+            dialog.IsFolderPicker = true;
+            CommonFileDialogResult result = dialog.ShowDialog();
+
+            if (result != CommonFileDialogResult.Ok) return;
+            path=dialog.FileName;
+
+            string serverPath = string.Empty;
+
+            InfoFile file = new InfoFile();
+            byte[] buffer = new byte[60000];
+            while(true)
+            {
+                int length = stream.Read(buffer, 0, buffer.Length);
+
+                if (length < 60000) { break; }
+            }
+
+            // TODO Дописать запись в файл
         }
     }
 }

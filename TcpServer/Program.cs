@@ -14,8 +14,8 @@ namespace TcpServer
         static TcpListener listener;
         static NetworkStream networkStream;
         static List<TcpClient> clients;
-        static string fileName;
         static string path = Environment.CurrentDirectory;
+        string FileName = "Test.txt";
 
         static void Main(string[] args)
         {
@@ -31,7 +31,7 @@ namespace TcpServer
             {
                 client = listener.AcceptTcpClient();  // работает как транзикация
                                                       // Пока не подключится клиент далше шаги не выполняются
-                clients.Add(client);
+                clients.Add(client); // Добавляет нового клиента в Лист
                 Console.WriteLine("У нас новый посетитель!");
                 Thread thread = new Thread(new ParameterizedThreadStart(ClientListener));
                 thread.Start(client);
@@ -52,8 +52,8 @@ namespace TcpServer
             }
             catch (Exception ex)
             {
-                clients.Remove(client);
-                Console.WriteLine(ex.ToString() + "\nCоединение прервано");
+                clients.Remove(client); //  Удаляем клиента если он не используется или ошибка
+                Console.WriteLine(ex.Message);
             }
         }
         static void Upload(TcpClient newClient)
@@ -68,19 +68,21 @@ namespace TcpServer
                 byte[] fileBuffer = new byte[60000];
                 packetLenght = networkStream.Read(fileBuffer, 0, 60000);
 
-                json += Encoding.Default.GetString(fileBuffer);
+                json += Encoding.UTF8.GetString(fileBuffer);
 
                 if (packetLenght < fileBuffer.Length)
                 {
                     break;
                 }
-                // TODO :: кодировка
-                //Encoding cp1251 = CodePagesEncodingProvider.Instance.GetEncoding(1251);
-                //if (cp1251 == null) throw new Exception("Кодировка cp1251 = null обновите .Net");
             }
             InfoFile file = new InfoFile();
             file = JsonConvert.DeserializeObject<InfoFile>(json);
             // TODO :: Создать файл
+            if(file == null)
+            {
+                throw new Exception("Клиент отключился...");
+            }
+            File.WriteAllBytes(path+"\\"+file.Name, file.Data);
         }
 
         //static void SetFileName(TcpClient newClient)
