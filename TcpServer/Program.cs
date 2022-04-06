@@ -14,7 +14,6 @@ namespace TcpServer
         static TcpListener listener;
         static NetworkStream networkStream;
         static List<TcpClient> clients;
-        static string fileName;
         static string path = Environment.CurrentDirectory;
 
         static void Main(string[] args)
@@ -53,7 +52,7 @@ namespace TcpServer
             catch (Exception ex)
             {
                 clients.Remove(client); //  Удаляем клиента если он не используется или ошибка
-                Console.WriteLine(ex.ToString() + "\nCоединение прервано");
+                Console.WriteLine(ex.Message);
             }
         }
         static void Upload(TcpClient newClient)
@@ -74,13 +73,15 @@ namespace TcpServer
                 {
                     break;
                 }
-                // TODO :: кодировка
-                //Encoding cp1251 = CodePagesEncodingProvider.Instance.GetEncoding(1251);
-                //if (cp1251 == null) throw new Exception("Кодировка cp1251 = null обновите .Net");
             }
             InfoFile file = new InfoFile();
             file = JsonConvert.DeserializeObject<InfoFile>(json);
             // TODO :: Создать файл
+            if(file == null)
+            {
+                throw new Exception("Клиент отключился...");
+            }
+            File.WriteAllBytes(path+"\\"+file.Name, file.Data);
         }
 
         //static void SetFileName(TcpClient newClient)
