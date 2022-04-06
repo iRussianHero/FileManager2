@@ -24,18 +24,14 @@ namespace TcpServer
         {
             int lenght = 0;
 
-            using (FileStream writer = File.Create("C:\\Users\\boxbo\\Desktop\\111\\SQL_Copy.jpg", 4096, FileOptions.Asynchronous))
+            using (FileStream writer = File.Create("C:\\Users\\vyshk\\Desktop\\delete\\slackCopy.exe", 4096, FileOptions.Asynchronous))
             {
-                networkStream = ((TcpClient)_newClient).GetStream();
-                byte[] buffer = new byte[4096];
-                networkStream.Read(buffer, 0, 4096);
-                string fileLenght = Encoding.Default.GetString(buffer);
-                lenght = Convert.ToInt32(fileLenght);
-
                 while (true)
                 {
                     try
                     {
+                        networkStream = ((TcpClient)_newClient).GetStream();
+                        byte[] buffer = new byte[4096];
                         networkStream.Read(buffer, 0, 4096);
                         lenght += buffer.Length;
                         writer.Write(buffer);
@@ -46,7 +42,6 @@ namespace TcpServer
                         Console.WriteLine(lenght);
                         break;
                     }
-
                     networkStream.Flush();
                 }
             }
