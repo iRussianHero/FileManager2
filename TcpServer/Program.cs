@@ -15,6 +15,7 @@ namespace TcpServer
         static NetworkStream networkStream;
         static List<TcpClient> clients;
         static string path = Environment.CurrentDirectory;
+        string FileName = "Test.txt";
 
         static void Main(string[] args)
         {
