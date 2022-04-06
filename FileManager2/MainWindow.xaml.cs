@@ -58,7 +58,7 @@ namespace FileManager2
 
             string jsonObject = file.GetJson();
 
-            byte[] packetJson = Encoding.ASCII.GetBytes(jsonObject);
+            byte[] packetJson = Encoding.UTF8.GetBytes(jsonObject);
 
             stream.Write(packetJson, 0, packetJson.Length);
         }

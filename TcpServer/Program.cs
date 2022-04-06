@@ -68,7 +68,7 @@ namespace TcpServer
                 byte[] fileBuffer = new byte[60000];
                 packetLenght = networkStream.Read(fileBuffer, 0, 60000);
 
-                json += Encoding.Default.GetString(fileBuffer);
+                json += Encoding.UTF8.GetString(fileBuffer);
 
                 if (packetLenght < fileBuffer.Length)
                 {
