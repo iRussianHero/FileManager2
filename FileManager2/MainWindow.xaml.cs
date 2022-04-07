@@ -6,6 +6,8 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Newtonsoft.Json;
+using System.Threading;
 
 namespace FileManager2
 {
@@ -66,36 +68,75 @@ namespace FileManager2
         }
         private void FormClickButtonBrowse(object sender, RoutedEventArgs e)
         {
-            var dialog = new CommonOpenFileDialog();
-            dialog.IsFolderPicker = false;
-            CommonFileDialogResult result = dialog.ShowDialog();
-
-            if (result != CommonFileDialogResult.Ok) return;
-            path = dialog.FileName;
+            SelectFile();
         }
 
         private void FormClickButtonDownLoad(object sender, RoutedEventArgs e)
         {
+            SelectFolder();
+            Thread thread = new Thread(ListenerDownLoad);
+            thread.Start();
+
+            InfoFile file = new InfoFile();
+            file.Method = "Download";
+            file.Name = "";
+            file.Length = 1;
+            file.Data = new byte[1] { 1 };
+
+            string jsonObject = file.GetJson();
+
+            byte[] packetJson = Encoding.UTF8.GetBytes(jsonObject);
+
+            stream.Write(packetJson, 0, packetJson.Length);
+        }
+
+        void SelectFolder()
+        {
             var dialog = new CommonOpenFileDialog();
             dialog.IsFolderPicker = true;
             CommonFileDialogResult result = dialog.ShowDialog();
-
             if (result != CommonFileDialogResult.Ok) return;
-            path=dialog.FileName;
+            path = dialog.FileName;
+        }
+        void SelectFile()
+        {
+            var dialog = new CommonOpenFileDialog();
+            dialog.IsFolderPicker = false;
+            CommonFileDialogResult result = dialog.ShowDialog();
+            if (result != CommonFileDialogResult.Ok) return;
+            path = dialog.FileName;
+        }
+        void ListenerDownLoad()
+        {
+            int packetLenght;
+            string json = string.Empty;
 
-            string serverPath = string.Empty;
-
-            InfoFile file = new InfoFile();
-            byte[] buffer = new byte[60000];
-            while(true)
+            while (true)
             {
-                int length = stream.Read(buffer, 0, buffer.Length);
+                stream = connectionToServer.GetStream();
+                byte[] fileBuffer = new byte[60000];
+                packetLenght = stream.Read(fileBuffer, 0, 60000);
 
-                if (length < 60000) { break; }
+                json += Encoding.UTF8.GetString(fileBuffer);
+
+                if (packetLenght < fileBuffer.Length)
+                {
+                    break;
+                }
             }
 
-            // TODO Дописать запись в файл
+            InfoFile file = new InfoFile();
+            file = JsonConvert.DeserializeObject<InfoFile>(json);
+
+            if (file == null)
+            {
+                MessageBox.Show("Файл передан пустой", "Error", MessageBoxButton.OK);
+            }
+
+            File.WriteAllBytes(path + "\\" + file.Name, file.Data);
+            MessageBox.Show("Файл передан", "Succes", MessageBoxButton.OK);
         }
+
     }
 }
 

@@ -15,7 +15,7 @@ namespace TcpServer
         static NetworkStream networkStream;
         static List<TcpClient> clients;
         static string path = Environment.CurrentDirectory;
-        string FileName = "Test.txt";
+        static string fileName = "Test.txt";
 
         static void Main(string[] args)
         {
@@ -42,12 +42,26 @@ namespace TcpServer
             TcpClient client = (TcpClient)_client;
             try
             {
+                InfoFile file = new InfoFile();
+                byte[] buffer = new byte[1000];
+                string json = string.Empty;
+
                 while (true)
                 {
-                    Upload(client);
+                    networkStream = client.GetStream(); // подключаемся к клиенту
+                    networkStream.Read(buffer, 0, 1000); // ждем пакет от клиента
+                    json = Encoding.UTF8.GetString(buffer);
+                    file = JsonConvert.DeserializeObject<InfoFile>(json);
 
-                    //    SetFileName(client);
-                    //    PostFile(client);
+                    if (file.Method == "Upload")
+                    {
+                        Upload(client);
+                    }
+
+                    if (file.Method == "Download")
+                    {
+                        Download(client);
+                    }
                 }
             }
             catch (Exception ex)
@@ -77,70 +91,33 @@ namespace TcpServer
             }
             InfoFile file = new InfoFile();
             file = JsonConvert.DeserializeObject<InfoFile>(json);
-            // TODO :: Создать файл
-            if(file == null)
+            if (file == null)
             {
                 throw new Exception("Клиент отключился...");
             }
-            File.WriteAllBytes(path+"\\"+file.Name, file.Data);
+            File.WriteAllBytes(path + "\\" + file.Name, file.Data);
         }
 
-        //static void SetFileName(TcpClient newClient)
-        //{
-        //    fileName = string.Empty;
-        //    //////////////////////////////////////////////////////////////////////////
-        //    ///Получаем имя файла
-        //    networkStream = newClient.GetStream();
-        //    byte[] fileNameBuffer = new byte[4096];
-        //    networkStream.Read(fileNameBuffer, 0, 4096);
+        static void Download(TcpClient client)
+        {
+            InfoFile file = new InfoFile();
 
-        //    if (Encoding.Default.GetString(fileNameBuffer).Contains("<Name="))
-        //    {
-        //        fileName = Encoding.Default.GetString(fileNameBuffer);
-        //        fileName = fileName.Remove(fileName.IndexOf('\0'));
-        //        fileName = fileName.Remove(0, fileName.IndexOf('=') + 1);
-        //        fileName = fileName.Remove(fileName.IndexOf('>'));
-        //        Console.WriteLine(fileName);
-        //    }
+            string pathFile = path + "\\" + fileName;
 
-        //    if (fileName == string.Empty)
-        //    {
-        //        throw new Exception("Посетитель вышел или не отправили имя файла");
-        //    }
-        //    //////////////////////////////////////////////////////////////////////////
-        //}
-        //static void PostFile(TcpClient newClient)
-        //{
-        //    if (fileName == string.Empty) return;
-        //    int packetLenght = 0;
-        //    int fileLenght = 0;
+            ////// Инициализируем file
+            int index = pathFile.LastIndexOf('\\');
+            file.Name = pathFile.Remove(0, index + 1);
+            file.Data = File.ReadAllBytes(pathFile);
+            file.Length = file.Data.Length;
+            /////////////////////////////////////////////           
 
-        //    //////////////////////////////////////////////////////////////////////////
-        //    ///Сохранение файла
-        //    using (FileStream fileWriter = File.Create($"{path}{fileName}", 4096, FileOptions.Asynchronous))
-        //    {
-        //        while (true)
-        //        {
+            string jsonObject = file.GetJson();
+            byte[] packetJson = Encoding.UTF8.GetBytes(jsonObject);
 
-        //            networkStream = newClient.GetStream();
-        //            byte[] fileDataBuffer = new byte[60000];
-        //            packetLenght = networkStream.Read(fileDataBuffer, 0, 60000);
-
-        //            if (packetLenght < fileDataBuffer.Length)
-        //            {
-        //                fileWriter.Write(fileDataBuffer, 0, packetLenght);
-        //                fileLenght += packetLenght;
-        //                return;
-        //            }
-        //            else
-        //            {
-        //                fileWriter.Write(fileDataBuffer, 0, packetLenght);
-        //                fileLenght += packetLenght;
-        //            }
-        //        }
-        //    }
-        //    //////////////////////////////////////////////////////////////////////////
-        //}
+            networkStream = client.GetStream();
+            networkStream.Write(packetJson, 0, packetJson.Length);
+            networkStream.Flush();           
+        }
 
     }
 }
